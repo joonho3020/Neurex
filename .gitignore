@@ -1,4 +1,4 @@
 **/xsim.dir/**
 **/xvlog.*
 **/.*.swp
-
+**/build/**
