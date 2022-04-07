@@ -1,4 +1,4 @@
-module input_mem_arr #(
+module mem_arr #(
   parameter int unsigned SYS_ROW = 16,
   parameter int unsigned DATA_WIDTH = 16
 ) (

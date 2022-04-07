@@ -57,7 +57,7 @@ initial begin
   $stop;
 end
 
-input_mem_arr #(
+mem_arr #(
   .SYS_ROW(SYS_ROW), .DATA_WIDTH(DATA_WIDTH)
 ) MEM(
   .clk(clk),
