@@ -33,22 +33,12 @@ logic [DATA_WIDTH-1:0] m_w;
 logic [DATA_WIDTH-1:0] m_w_out;
 
 always_ff @(posedge clk, negedge rstn) begin
-  if (!rstn) begin
-    w_wen_out <= 1'b0;
-    en_out <= 1'b0;
-    pass_out <= {DATA_WIDTH{1'd0}};
-    psum_out <= {PSUM_WIDTH{1'd0}};
-    w <= {DATA_WIDTH{1'd0}};
-    w_out <= {DATA_WIDTH{1'd0}};
-  end
-  else begin
-    w_wen_out <= m_w_wen;
-    en_out <= m_en;
-    pass_out <= m_pass_out;
-    psum_out <= m_psum_out;
-    w <= m_w;
-    w_out <= m_w_out;
-  end
+  w_wen_out <= m_w_wen;
+  en_out <= m_en;
+  pass_out <= m_pass_out;
+  psum_out <= m_psum_out;
+  w <= m_w;
+  w_out <= m_w_out;
 end
 
 // mac
@@ -58,10 +48,15 @@ always_comb begin
   if (en_in) begin
     m_pass_out = in;
     m_psum_out = in * w + psum_in;
-  end
-  else begin
+  end else begin
     m_pass_out = pass_out;
     m_psum_out = psum_out;
+  end
+
+  if (!rstn) begin
+    m_en = 1'b0;
+    m_pass_out = {DATA_WIDTH{1'd0}};
+    m_psum_out = {PSUM_WIDTH{1'd0}};
   end
 end
 
@@ -72,9 +67,14 @@ always_comb begin
   if (w_wen_in || w_wen_out) begin
     m_w = w_in;
     m_w_out = w;
-  end
-  else begin
+  end else begin
     m_w = w;
+    m_w_out = {DATA_WIDTH{1'd0}};
+  end
+
+  if (!rstn) begin
+    m_w_wen = 1'b0;
+    m_w = {DATA_WIDTH{1'd0}};
     m_w_out = {DATA_WIDTH{1'd0}};
   end
 end

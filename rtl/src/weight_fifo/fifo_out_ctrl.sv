@@ -15,7 +15,7 @@ logic start, m_start;
 logic [COUNT_WIDTH-1:0] depth_cnt, m_depth_cnt;
 
 assign fifo_en = {FIFO_WIDTH{start}};
-assign done = ~(start || en);
+assign done = (start && depth_cnt == FIFO_DEPTH - 1);
 assign w_wen = (start && depth_cnt < FIFO_DEPTH); // FIXME: FIFO_DEPTH - 1?
 
 always_ff @(posedge clk) begin
@@ -37,6 +37,7 @@ always_comb begin
 
     if (depth_cnt == FIFO_DEPTH - 1) begin
       m_start = 1'b0;
+      m_depth_cnt = {COUNT_WIDTH{1'b0}};
     end
   end
 
