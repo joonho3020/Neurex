@@ -1,4 +1,4 @@
-`timescale 1 ps / 1 ps
+`timescale 1 ns / 1 ps
 
 module tb_input_mem();
 parameter int unsigned SYS_ROW = 16;

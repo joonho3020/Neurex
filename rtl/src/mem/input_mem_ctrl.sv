@@ -18,9 +18,12 @@ module input_mem_ctrl #(
   output logic                wr_done
 );
 
-
+//logic [SYS_ROW-1:0]     rd_en;
 logic [SYS_ROW-1:0]     m_rd_en;
 logic [7:0]             m_rd_addr[0:SYS_ROW-1]; // FIXME: addr_width = 8
+
+logic [SYS_ROW-1:0]     m_rd_en_pre;
+logic [SYS_ROW-1:0]     rd_en_pre;
 
 logic [SYS_ROW-1:0]     m_wr_en;
 logic [7:0]             m_wr_addr[0:SYS_ROW-1]; // FIXME: addr_width = 8
@@ -42,6 +45,7 @@ always_ff @(posedge clk) begin
   rd_en <= m_rd_en;
   rd_addr <= m_rd_addr;
   rd_row_cnt <= m_rd_row_cnt;
+  rd_en_pre <= m_rd_en_pre;
   rd_start <= m_rd_start;
 end
 
@@ -53,10 +57,13 @@ always_comb begin
 
   if (rd_en_in) begin
     m_rd_start = 1'b1;
+    for (i = 0; i < SYS_ROW; i = i + 1) begin
+      m_rd_addr[i] = 8'h00;
+    end
   end
 
   if (rd_start) begin
-    if (rd_row_cnt >= ACCUM_ROW || rd_row_cnt >= num_row) begin
+    if (rd_row_cnt >= ACCUM_ROW -1 || rd_row_cnt >= num_row - 1) begin
       //m_rd_en = rd_en << 1'b1;
       m_rd_en = {rd_en[SYS_ROW-2:0], 1'b0};
     end else begin
@@ -70,10 +77,10 @@ always_comb begin
 
     m_rd_row_cnt = rd_row_cnt + 1'b1;
 
-    if (m_rd_row_cnt == 2 * ACCUM_ROW - 1 || m_rd_row_cnt == 2 * num_row - 1) begin
+    if (m_rd_row_cnt == 2 * ACCUM_ROW || m_rd_row_cnt == 2 * num_row) begin
       m_rd_start = 1'b0;
       for (i = 0; i < SYS_ROW; i = i + 1) begin
-        m_rd_addr[i] = 8'd0;
+        m_rd_addr[i] = 8'hFF;
       end
       m_rd_row_cnt = {COUNT_WIDTH{1'b0}};
     end
@@ -84,7 +91,7 @@ always_comb begin
   if (!rstn) begin
     m_rd_start = 1'b0;
     for (i = 0; i < SYS_ROW; i = i + 1) begin
-      m_rd_addr[i] = 8'd0;
+      m_rd_addr[i] = 8'hFF;
     end
     m_rd_en = {SYS_ROW{1'b0}};
     m_rd_row_cnt = {COUNT_WIDTH{1'b0}};
@@ -137,7 +144,7 @@ always @* begin
   if (!rstn) begin
     m_wr_start = 1'b0;
     for (i = 0; i < SYS_ROW; i = i + 1) begin
-      m_wr_addr[i] = 8'd0;
+      m_wr_addr[i] = 8'd1;
     end
     m_wr_en = {SYS_ROW{1'b0}};
     m_wr_row_cnt = {COUNT_WIDTH{1'b0}};

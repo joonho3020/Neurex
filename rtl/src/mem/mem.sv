@@ -20,13 +20,13 @@ generate
     // True Dual-port BRAM
     sram_16x256 m_sram_16x256(
       .clka       (clk),
-      .ena        (rd_en[i]),
+      .ena        (1'b1),
       .wea        (1'b0),
       .addra      (rd_addr[i]),
       .dina       ({DATA_WIDTH{1'b0}}),
       .douta      (rd_data[i]),
       .clkb       (clk),
-      .enb        (wr_en[i]),
+      .enb        (1'b1),
       .web        (wr_en[i]),
       .addrb      (wr_addr[i]),
       .dinb       (wr_data[i]),
