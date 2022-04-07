@@ -1,7 +1,9 @@
 module input_mem_ctrl #(
   parameter  int unsigned SYS_ROW = 16,
+  parameter  int unsigned SYS_COL = 16,
   parameter  int unsigned DATA_WIDTH = 16,
-  parameter  int unsigned ACCUM_ROW = 128,
+  parameter  int unsigned ACCUM_SIZE = 4096,
+  localparam int unsigned ACCUM_ROW = ACCUM_SIZE / SYS_COL,
   localparam int unsigned COUNT_WIDTH = $clog2(ACCUM_ROW) + 1
 ) (
   input                       clk,

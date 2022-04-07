@@ -2,8 +2,9 @@
 
 module tb_input_mem();
 parameter int unsigned SYS_ROW = 16;
+parameter int unsigned SYS_COL = 16;
 parameter int unsigned DATA_WIDTH = 16;
-parameter int unsigned ACCUM_ROW = 128;
+parameter int unsigned ACCUM_SIZE = 4096;
 parameter int unsigned NUM_ROW = 8;
 
 logic clk, rstn, rd_active, wr_active;
@@ -71,7 +72,7 @@ mem_arr #(
 );
 
 input_mem_ctrl #(
-  .SYS_ROW(SYS_ROW), .DATA_WIDTH(DATA_WIDTH)
+  .SYS_ROW(SYS_ROW), .SYS_COL(SYS_COL), .DATA_WIDTH(DATA_WIDTH), .ACCUM_SIZE(ACCUM_SIZE)
 ) CTRL(
   .clk(clk),
   .rstn(rstn),

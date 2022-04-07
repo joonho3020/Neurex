@@ -17,12 +17,13 @@ logic [DATA_WIDTH-1:0]    rd_data2[0:SYS_ROW-1];
 genvar i;
 generate
   for (i = 0; i < SYS_ROW; i = i + 1) begin : mem_arr
-    sram_input_16x256 m_sram_input_16x256(
+    // True Dual-port BRAM
+    sram_16x256 m_sram_16x256(
       .clka       (clk),
       .ena        (rd_en[i]),
       .wea        (1'b0),
       .addra      (rd_addr[i]),
-      .dina       (16'd0),
+      .dina       ({DATA_WIDTH{1'b0}}),
       .douta      (rd_data[i]),
       .clkb       (clk),
       .enb        (wr_en[i]),
