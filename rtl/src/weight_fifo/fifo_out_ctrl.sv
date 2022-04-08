@@ -15,8 +15,8 @@ logic start, m_start;
 logic [COUNT_WIDTH-1:0] depth_cnt, m_depth_cnt;
 
 assign fifo_en = {FIFO_WIDTH{start}};
-assign done = (start && depth_cnt == FIFO_DEPTH - 1);
-assign w_wen = (start && depth_cnt < FIFO_DEPTH); // FIXME: FIFO_DEPTH - 1?
+assign done = (start == 1'b1 && depth_cnt == FIFO_DEPTH - 1);
+assign w_wen = {FIFO_WIDTH{(start == 1'b1 && depth_cnt < FIFO_DEPTH)}}; // FIXME: FIFO_DEPTH - 1?
 
 always_ff @(posedge clk) begin
   start <= m_start;

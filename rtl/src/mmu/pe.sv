@@ -27,10 +27,15 @@ logic                  m_en;
 logic [DATA_WIDTH-1:0] m_pass_out;
 logic [PSUM_WIDTH-1:0] m_psum_out;
 
-logic [DATA_WIDTH-1:0] w; // weight register
+logic [DATA_WIDTH-1:0] w;  // weight register
+logic [DATA_WIDTH-1:0] w2; // weight register
 
 logic [DATA_WIDTH-1:0] m_w;
+logic [DATA_WIDTH-1:0] m_w2;
 logic [DATA_WIDTH-1:0] m_w_out;
+
+logic                  valid;
+logic                  m_valid;
 
 always_ff @(posedge clk, negedge rstn) begin
   w_wen_out <= m_w_wen;
@@ -38,7 +43,9 @@ always_ff @(posedge clk, negedge rstn) begin
   pass_out <= m_pass_out;
   psum_out <= m_psum_out;
   w <= m_w;
+  w2 <= m_w2;
   w_out <= m_w_out;
+  valid <= m_valid;
 end
 
 // mac
@@ -65,17 +72,28 @@ always_comb begin
   m_w_wen = w_wen_in;
 
   if (w_wen_in || w_wen_out) begin
-    m_w = w_in;
-    m_w_out = w;
+    m_w2 = w_in;
+    m_w_out = w2;
+    m_valid = 1'b1;
+  end else begin
+    m_w2 = w2;
+    m_w_out = {DATA_WIDTH{1'b0}};
+    m_valid = valid;
+  end
+
+  if (!en_in && valid) begin
+    m_w = w2;
+    m_valid = 1'b0;
   end else begin
     m_w = w;
-    m_w_out = {DATA_WIDTH{1'd0}};
   end
 
   if (!rstn) begin
     m_w_wen = 1'b0;
-    m_w = {DATA_WIDTH{1'd0}};
-    m_w_out = {DATA_WIDTH{1'd0}};
+    m_w = {DATA_WIDTH{1'b0}};
+    m_w2 = {DATA_WIDTH{1'b0}};
+    m_w_out = {DATA_WIDTH{1'b0}};
+    m_valid = 1'b0;
   end
 end
 
