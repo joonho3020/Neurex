@@ -11,19 +11,16 @@ module input_mem_ctrl #(
   input                       rd_en_in,
   input                       wr_en_in,
   input [DATA_WIDTH-1:0]      num_row, // Assumption: num_row should be less than or equal to ACCUM_ROW
-  output logic [SYS_ROW-1:0]  rd_en,
+  output logic [SYS_ROW-1:0]  rd_en_out,
   output logic [7:0]          rd_addr[0:SYS_ROW-1], // FIXME: addr_width = 8
-  output logic [SYS_ROW-1:0]  wr_en,
+  output logic [SYS_ROW-1:0]  wr_en_out,
   output logic [7:0]          wr_addr[0:SYS_ROW-1], // FIXME: addr_width = 8
   output logic                wr_done
 );
 
-//logic [SYS_ROW-1:0]     rd_en;
-logic [SYS_ROW-1:0]     m_rd_en;
+logic [SYS_ROW-1:0]     rd_en;
+logic [SYS_ROW-1:0]     m_rd_en, rd_en2, m_rd_en2, rd_en3, m_rd_en3;
 logic [7:0]             m_rd_addr[0:SYS_ROW-1]; // FIXME: addr_width = 8
-
-logic [SYS_ROW-1:0]     m_rd_en_pre;
-logic [SYS_ROW-1:0]     rd_en_pre;
 
 logic [SYS_ROW-1:0]     m_wr_en;
 logic [7:0]             m_wr_addr[0:SYS_ROW-1]; // FIXME: addr_width = 8
@@ -39,13 +36,16 @@ logic                   wr_start;
 logic                   m_wr_start;
 logic                   m_wr_done;
 
+assign rd_en_out = rd_en3; // 2-cycle read latency
+
 // Read data to systolic array
 // Skewed read
 always_ff @(posedge clk) begin
   rd_en <= m_rd_en;
+  rd_en2 <= m_rd_en2;
+  rd_en3 <= m_rd_en3;
   rd_addr <= m_rd_addr;
   rd_row_cnt <= m_rd_row_cnt;
-  rd_en_pre <= m_rd_en_pre;
   rd_start <= m_rd_start;
 end
 
@@ -54,6 +54,9 @@ always_comb begin
   m_rd_start = rd_start;
   m_rd_addr = rd_addr;
   m_rd_row_cnt = rd_row_cnt;
+
+  m_rd_en2 = rd_en;
+  m_rd_en3 = rd_en2;
 
   if (rd_en_in) begin
     m_rd_start = 1'b1;
@@ -100,15 +103,15 @@ end
 
 // Write data to input memory
 // Parallel write
-always @(posedge clk) begin
-  wr_en <= m_wr_en;
+always_ff @(posedge clk) begin
+  wr_en_out <= m_wr_en;
   wr_addr <= m_wr_addr;
   wr_row_cnt <= m_wr_row_cnt;
   wr_start <= m_wr_start;
   wr_done <= m_wr_done;
 end
 
-always @* begin
+always_comb begin
   m_wr_start = wr_start;
   m_wr_addr = wr_addr;
   m_wr_row_cnt = wr_row_cnt;

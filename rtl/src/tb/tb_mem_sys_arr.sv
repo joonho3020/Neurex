@@ -51,7 +51,7 @@ sys_array #(
 ) m_sys_arr (
   .clk      (clk),
   .rstn     (rstn),
-  .en       (active),
+  .en       (rd_en[0]),
   .w_wen    (w_wen),
   .in       (rd_data),
   .w_in     (w_in),
@@ -90,9 +90,9 @@ input_mem_ctrl #(
   .rd_en_in (rd_active),
   .wr_en_in (wr_active),
   .num_row  (num_row),
-  .rd_en    (rd_en),
+  .rd_en_out(rd_en),
   .rd_addr  (rd_addr),
-  .wr_en    (wr_en),
+  .wr_en_out(wr_en),
   .wr_addr  (wr_addr),
   .wr_done  (wr_done)
 );
