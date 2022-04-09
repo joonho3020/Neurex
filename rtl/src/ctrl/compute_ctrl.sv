@@ -21,8 +21,7 @@ module compute_ctrl #(
 
 logic m_fifo_out_ctrl_en, m_mem_rd_ctrl_en;
 
-logic [1:0] fill_state, m_fill_state;
-logic [1:0] compute_state, m_compute_state;
+logic [1:0] state, m_state;
 
 logic fill_done_inter, m_fill_done;
 logic weight_change_inter, m_weight_change;
@@ -34,90 +33,70 @@ logic [7:0] m_accum_wr_addr;
 always_ff @(posedge clk) begin
   fifo_out_ctrl_en <= m_fifo_out_ctrl_en;
   mem_rd_ctrl_en <= m_mem_rd_ctrl_en;
-  fill_state <= m_fill_state;
-  compute_state <= m_compute_state;
+  state <= m_state;
   fill_done_inter <= m_fill_done;
   weight_change_inter <= m_weight_change;
   num_row_inter <= m_num_row;
   accum_wr_addr <= m_accum_wr_addr;
 end
 
-// Fill weight to systolic array
+assign num_row_out = num_row_inter;
+
+// Fill weight to systolic array -> Read input & Start computation
 always_comb begin
-  unique case (fill_state)
+  unique case (state)
     IDLE: begin
-      m_fill_state = IDLE;
+      m_state = IDLE;
       m_fifo_out_ctrl_en = 1'b0;
+      m_mem_rd_ctrl_en = 1'b0;
       m_fill_done = 1'b0;
 
       if (en) begin
         if (weight_fill) begin
-          m_fill_state = W_FILL;
+          m_state = W_FILL;
           m_fifo_out_ctrl_en = 1'b1;
-        end else if (!weight_fill) begin
+        end else begin
           m_fill_done = 1'b1;
         end
         m_weight_change = weight_change;
         m_num_row = num_row_in;
       end else begin
-        m_weight_change = weight_change_inter;
-        m_num_row = num_row_inter;
-      end
-
-      if (weight_change_inter) begin
-        m_fill_state = W_FILL;
-        m_fifo_out_ctrl_en = 1'b1;
         m_weight_change = 1'b0;
+        m_num_row = num_row_inter;
       end
     end
     W_FILL: begin
-      m_fill_state = W_FILL;
+      m_state = W_FILL;
       m_fifo_out_ctrl_en = 1'b0;
+      m_mem_rd_ctrl_en = 1'b0;
       m_fill_done = fill_done;
-      m_num_row = num_row_in;
-      m_weight_change = weight_change;
+      m_num_row = num_row_inter;
+      m_weight_change = weight_change_inter;
 
-      if (fill_done) begin
-        m_fill_state = IDLE;
+      if (fill_done_inter) begin
+        m_state = READ_AND_COMPUTE;
+        m_mem_rd_ctrl_en = 1'b1;
+        if (weight_change_inter) begin
+          m_fifo_out_ctrl_en = 1'b1;
+        end
+      end
+    end
+    READ_AND_COMPUTE: begin
+      m_state = READ_AND_COMPUTE;
+      m_mem_rd_ctrl_en = 1'b0;
+      m_fifo_out_ctrl_en = 1'b0;
+
+      if (sys_done) begin
+        m_state = IDLE;
       end
     end
     default: begin
       if (!rstn) begin
-        m_fill_state = IDLE;
+        m_state = IDLE;
         m_fifo_out_ctrl_en = 1'b0;
         m_fill_done = 1'b0;
         m_num_row = {DATA_WIDTH{1'b0}};
         m_weight_change = 1'b0;
-      end
-    end
-  endcase
-end
-
-// Read input & Start computation
-assign num_row_out = num_row_inter;
-
-always_comb begin
-  unique case (compute_state)
-    IDLE: begin
-      m_compute_state = IDLE;
-      m_mem_rd_ctrl_en = 1'b0;
-
-      if (fill_done_inter) begin
-        m_compute_state = READ_AND_COMPUTE;
-        m_mem_rd_ctrl_en = 1'b1;
-      end
-    end
-    READ_AND_COMPUTE: begin
-      m_mem_rd_ctrl_en = 1'b0;
-
-      if (sys_done) begin
-        m_compute_state = IDLE;
-      end
-    end
-    default: begin
-      if (!rstn) begin
-        m_compute_state = IDLE;
-        m_mem_rd_ctrl_en = 1'b0;
       end
     end
   endcase
@@ -154,3 +133,4 @@ end
 */
 
 endmodule
+

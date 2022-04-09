@@ -10,6 +10,7 @@ module mem_rd_ctrl #(
   input                       rstn,
   input                       rd_en_in,
   input [DATA_WIDTH-1:0]      num_row, // Assumption: num_row should be less than or equal to ACCUM_ROW
+  input [7:0]                 base_addr,
   output logic [SYS_ROW-1:0]  rd_en_out,
   output logic [7:0]          rd_addr[0:SYS_ROW-1] // FIXME: addr_width = 8
 );
@@ -49,7 +50,7 @@ always_comb begin
   if (rd_en_in) begin
     m_rd_start = 1'b1;
     for (i = 0; i < SYS_ROW; i = i + 1) begin
-      m_rd_addr[i] = 8'h00;
+      m_rd_addr[i] = base_addr;
     end
   end
 

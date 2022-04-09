@@ -164,6 +164,7 @@ mem_rd_ctrl #(
   .rstn     (rstn),
   .rd_en_in (in_rd_en_in),
   .num_row  (in_num_row),
+  .base_addr(in_base_addr),
   .rd_en_out(in_rd_en),
   .rd_addr  (in_rd_addr)
 );
