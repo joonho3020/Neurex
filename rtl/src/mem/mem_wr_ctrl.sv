@@ -77,7 +77,7 @@ always_comb begin
   if (!rstn) begin
     m_wr_start = 1'b0;
     for (i = 0; i < SYS_ROW; i = i + 1) begin
-      m_wr_addr[i] = 8'd1;
+      m_wr_addr[i] = 8'd0;
     end
     m_wr_en = {SYS_ROW{1'b0}};
     m_wr_row_cnt = {COUNT_WIDTH{1'b0}};

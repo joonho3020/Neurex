@@ -1,4 +1,5 @@
 module fifo_out_ctrl #(
+  parameter  int unsigned SYS_ROW    = 16,
   parameter  int unsigned FIFO_WIDTH = 16,
   parameter  int unsigned FIFO_DEPTH = 16,
   localparam int unsigned COUNT_WIDTH = $clog2(FIFO_WIDTH) + 1
@@ -15,8 +16,8 @@ logic start, m_start;
 logic [COUNT_WIDTH-1:0] depth_cnt, m_depth_cnt;
 
 assign fifo_en = {FIFO_WIDTH{start}};
-assign done = (start == 1'b1 && depth_cnt == FIFO_DEPTH - 1);
-assign w_wen = {FIFO_WIDTH{(start == 1'b1 && depth_cnt < FIFO_DEPTH)}}; // FIXME: FIFO_DEPTH - 1?
+assign done = (start == 1'b1 && depth_cnt == SYS_ROW - 1);
+assign w_wen = {FIFO_WIDTH{(start == 1'b1 && depth_cnt < SYS_ROW)}}; // FIXME: SYS_ROW - 1?
 
 always_ff @(posedge clk) begin
   start <= m_start;
@@ -35,7 +36,7 @@ always_comb begin
   if (start) begin
     m_depth_cnt = depth_cnt + 1;
 
-    if (depth_cnt == FIFO_DEPTH - 1) begin
+    if (depth_cnt == SYS_ROW - 1) begin
       m_start = 1'b0;
       m_depth_cnt = {COUNT_WIDTH{1'b0}};
     end

@@ -82,19 +82,15 @@ mem_arr #(
   .rd_data  (rd_data)
 );
 
-input_mem_ctrl #(
+mem_rd_ctrl #(
   .SYS_ROW(SYS_ROW), .SYS_COL(SYS_COL), .DATA_WIDTH(DATA_WIDTH), .ACCUM_SIZE(ACCUM_SIZE)
 ) CTRL(
   .clk      (clk),
   .rstn     (rstn),
   .rd_en_in (rd_active),
-  .wr_en_in (wr_active),
   .num_row  (num_row),
   .rd_en_out(rd_en),
-  .rd_addr  (rd_addr),
-  .wr_en_out(wr_en),
-  .wr_addr  (wr_addr),
-  .wr_done  (wr_done)
+  .rd_addr  (rd_addr)
 );
 
 always begin

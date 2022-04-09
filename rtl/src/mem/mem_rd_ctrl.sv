@@ -54,7 +54,7 @@ always_comb begin
   end
 
   if (rd_start) begin
-    if (rd_row_cnt >= ACCUM_ROW -1 || rd_row_cnt >= num_row - 1) begin
+    if (rd_row_cnt >= ACCUM_ROW || rd_row_cnt >= num_row) begin
       //m_rd_en = rd_en << 1'b1;
       m_rd_en = {rd_en[SYS_ROW-2:0], 1'b0};
     end else begin
