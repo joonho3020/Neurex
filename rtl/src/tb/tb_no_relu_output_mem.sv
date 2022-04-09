@@ -293,10 +293,12 @@ task full_test();
   compute_ctrl_en <= 1'b1;
   num_row_in <= SYS_COL;
   weight_fill <= 1'b1; // fill weight
-  weight_change <= 1'b0;  // weight double buffering
+  weight_change <= 1'b1;  // weight double buffering
 
   #10;
   compute_ctrl_en <= 1'b0;
+  weight_fill <= 1'b0;
+  weight_change <= 1'b0;
   
   wait(en_out[0]);
   $stop;

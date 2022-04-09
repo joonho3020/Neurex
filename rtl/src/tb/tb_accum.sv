@@ -18,6 +18,14 @@ logic [ADDR_WIDTH-1:0] wr_addr[0:SYS_COL-1];
 logic [DATA_WIDTH-1:0] rd_data[0:SYS_COL-1];
 logic [DATA_WIDTH-1:0] wr_data[0:SYS_COL-1];
 
+logic output_ctrl_en;
+logic [7:0] output_wr_addr[0:SYS_COL-1];
+logic [DATA_WIDTH-1:0] output_wr_data[0:SYS_COL-1];
+logic [SYS_COL-1:0] output_wr_en;
+logic [7:0] output_base_addr;
+logic [15:0] num_row;
+logic done;
+
 // Module instantiation
 accum #(
   .SYS_COL(SYS_COL), .DATA_WIDTH(DATA_WIDTH), .ACCUM_SIZE(ACCUM_SIZE)
@@ -43,6 +51,41 @@ accum_wr_ctrl #(
   .wr_addr_out(wr_addr)
 );
 
+relu_arr #(
+  .SYS_COL(SYS_COL), .DATA_WIDTH(DATA_WIDTH)
+) m_relu_arr(
+  .en(rd_en[0]),
+  .in(rd_data),
+  .out(output_wr_data)
+);
+
+out_mem_arr #(
+  .ACCUM_ROW(ACCUM_ROW), .DATA_WIDTH(DATA_WIDTH)
+) m_out_mem_arr(
+  .clk(clk),
+  .rstn(rstn),
+  .rd_en({ACCUM_ROW{1'b0}}),
+  .wr_en(output_wr_en),
+  .rd_addr(),
+  .wr_addr(output_wr_addr),
+  .wr_data(output_wr_data)
+);
+
+output_ctrl #(
+  .SYS_COL(SYS_COL), .ACCUM_SIZE(ACCUM_SIZE)
+) m_output_ctrl(
+  .clk(clk),
+  .rstn(rstn),
+  .en(output_ctrl_en),
+  .base_addr(output_base_addr),
+  .num_row(num_row),
+  .accum_rd_addr(rd_addr),
+  .output_wr_addr(output_wr_addr),
+  .accum_rd_en(rd_en),
+  .output_wr_en(output_wr_en),
+  .done(done)
+);
+
 always begin
   #5;
   clk = ~clk;
@@ -53,57 +96,62 @@ task accum_test();
   clk = 1'b1;
   rstn = 1'b0;
   wr_en_ctrl = 1'b0;
+  output_ctrl_en = 1'b0;
 
   #10;
   rstn = 1'b1;
   
+  #10;
   // Write initial psum in accum
   for (i = 0; i < 2 * NUM_ROW - 1; i = i + 1) begin
     #10;
     for (j = 0; j < SYS_COL; j = j + 1) begin
-      wr_data[j] = (j <= i) ? (j+1) + 4*(i-j) : 0;
+      wr_data[j] <= (j <= i) ? (j+1) + 4*(i-j) - 2 : 0;
     end
     if (i < NUM_ROW) begin
-      wr_addr_ctrl = i;
-      wr_en_ctrl = 1'b1;
+      wr_addr_ctrl <= i;
+      wr_en_ctrl <= 1'b1;
     end else begin
-      wr_addr_ctrl = 0;
-      wr_en_ctrl = 1'b0;
+      wr_addr_ctrl <= 0;
+      wr_en_ctrl <= 1'b0;
     end
   end
 
   #70; // Wait until skewed output is stored
   
   // Reset ctrl
-  accum_rstn = 1'b0;
+  accum_rstn <= 1'b0;
   #10;
-  accum_rstn = 1'b1;
+  accum_rstn <= 1'b1;
+  #10;
 
   // Accumulation
   for (i = 0; i < 2 * NUM_ROW - 1; i = i + 1) begin
     #10;
     for (j = 0; j < SYS_COL; j = j + 1) begin
-      wr_data[j] = (j <= i) ? (j+1) + 4*(i-j) : 0;
+      wr_data[j] <= (j <= i) ? (j+1) + 4*(i-j) - 2: 0;
     end
     if (i < NUM_ROW) begin
-      wr_addr_ctrl = i;
-      wr_en_ctrl = 1'b1;
+      wr_addr_ctrl <= i;
+      wr_en_ctrl <= 1'b1;
     end else begin
-      wr_addr_ctrl = 0;
-      wr_en_ctrl = 1'b0;
+      wr_addr_ctrl <= 0;
+      wr_en_ctrl <= 1'b0;
     end
   end
   
   #70;
-  // Read accumulated data
-  rd_en = {SYS_COL{1'b1}};
-  for (i = 0; i < NUM_ROW; i = i + 1) begin
-    #10;
-    for (j = 0; j < SYS_COL; j = j + 1) begin
-      rd_addr[j] = i;
-    end
-  end
+  // Store accumulated results to output memory
+  output_ctrl_en <= 1'b1;
+  output_base_addr <= 0;
+  num_row <= NUM_ROW;
 
+  #10;
+  output_ctrl_en <= 1'b0;
+  num_row <= 0;
+
+  wait(done);
+  $stop;
 endtask
 
 initial begin

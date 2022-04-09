@@ -64,7 +64,7 @@ always_comb begin
         m_num_row = num_row_inter;
       end
 
-      if (weight_change) begin
+      if (weight_change_inter) begin
         m_fill_state = W_FILL;
         m_fifo_out_ctrl_en = 1'b1;
         m_weight_change = 1'b0;

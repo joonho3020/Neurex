@@ -6,9 +6,9 @@ module out_mem_arr #(
   input                   rstn,
   input [ACCUM_ROW-1:0]   rd_en,
   input [ACCUM_ROW-1:0]   wr_en,
-  input [DATA_WIDTH-1:0]  wr_data[0:ACCUM_ROW-1],
   input [7:0]             rd_addr[0:ACCUM_ROW-1], // FIXME: addr_bitwidth = 8
   input [7:0]             wr_addr[0:ACCUM_ROW-1],
+  input [DATA_WIDTH-1:0]  wr_data[0:ACCUM_ROW-1],
   output [DATA_WIDTH-1:0] rd_data[0:ACCUM_ROW-1]
 );
 
