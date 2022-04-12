@@ -10,6 +10,7 @@ module pe #(
   input                         clk,
   input                         rstn, // FIXME: is it really need?
   input                         en_in,
+  input                         global_w_wen_in,
   input                         w_wen_in,
   input [DATA_WIDTH-1:0]        in,
   input [DATA_WIDTH-1:0]        w_in,
@@ -72,7 +73,7 @@ end
 always_comb begin
   m_w_wen = w_wen_in;
 
-  if (w_wen_in) begin
+  if (global_w_wen_in && w_wen_in) begin
     m_w2 = w_in;
     //m_w_out = w2;
     m_w_out = w_in;
