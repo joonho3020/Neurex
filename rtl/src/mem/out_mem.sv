@@ -1,22 +1,23 @@
 module out_mem_arr #(
-  parameter int unsigned ACCUM_ROW = 256,
-  parameter int unsigned DATA_WIDTH = 32
+  parameter int unsigned NUM_BANK = 16,
+  parameter int unsigned DATA_WIDTH = 32,
+  parameter int unsigned ADDR_WIDTH = 16
 ) (
   input                   clk,
   input                   rstn,
-  input [ACCUM_ROW-1:0]   rd_en,
-  input [ACCUM_ROW-1:0]   wr_en,
-  input [7:0]             rd_addr[0:ACCUM_ROW-1], // FIXME: addr_bitwidth = 8
-  input [7:0]             wr_addr[0:ACCUM_ROW-1],
-  input [DATA_WIDTH-1:0]  wr_data[0:ACCUM_ROW-1],
-  output [DATA_WIDTH-1:0] rd_data[0:ACCUM_ROW-1]
+  input [NUM_BANK-1:0]    rd_en,
+  input [NUM_BANK-1:0]    wr_en,
+  input [ADDR_WIDTH-1:0]  rd_addr[0:NUM_BANK-1], // FIXME: addr_bitwidth = 8
+  input [ADDR_WIDTH-1:0]  wr_addr[0:NUM_BANK-1],
+  input [DATA_WIDTH-1:0]  wr_data[0:NUM_BANK-1],
+  output [DATA_WIDTH-1:0] rd_data[0:NUM_BANK-1]
 );
 
-logic [DATA_WIDTH-1:0]    rd_data2[0:ACCUM_ROW-1];
+logic [DATA_WIDTH-1:0]    rd_data2[0:NUM_BANK-1];
 
 genvar i;
 generate
-  for (i = 0; i < ACCUM_ROW; i = i + 1) begin : out_mem_arr
+  for (i = 0; i < NUM_BANK; i = i + 1) begin : out_mem_arr
     // True Dual-port BRAM
     sram_32x256 m_sram_32x256(
       .clka       (clk),

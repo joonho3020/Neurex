@@ -7,7 +7,7 @@ parameter ACCUM_SIZE = 1024;
 parameter NUM_ROW = 4; // should test three cases, NUM_ROW {==, >, <} SYS_COL
 localparam PSUM_WIDTH = 2 * DATA_WIDTH;
 localparam FIFO_WIDTH = SYS_COL;
-localparam FIFO_DEPTH = SYS_ROW;
+localparam FIFO_DEPTH = 2*SYS_ROW;
 localparam ACCUM_ROW = ACCUM_SIZE / SYS_COL;
 
 // FIFO side inputs
@@ -59,6 +59,7 @@ logic fill_done;
 
 logic fifo_in_en, fifo_out_en;
 logic [FIFO_WIDTH-1:0] fifo_in_en_out, fifo_out_en_out;
+logic [31:0] repeat_cnt;
 
 logic weight_fill, weight_change;
 logic [7:0] accum_wr_addr;
@@ -68,10 +69,12 @@ logic accum_rstn;
 logic [7:0] tot_accum_wr_addr[0:SYS_COL-1];
 logic [SYS_COL-1:0] accum_wr_en;
 
+logic fifo_data_in;
+
 // Module instantiations
 // FIFO
 mem_arr #(
-  .SYS_ROW(FIFO_DEPTH), .DATA_WIDTH(DATA_WIDTH)
+  .SYS_ROW(FIFO_WIDTH), .DATA_WIDTH(DATA_WIDTH)
 ) W_MEM(
   .clk      (clk),
   .rstn     (rstn),
@@ -84,7 +87,7 @@ mem_arr #(
 );
 
 mem_wr_ctrl #(
-  .SYS_ROW(FIFO_DEPTH), .SYS_COL(FIFO_WIDTH), .DATA_WIDTH(DATA_WIDTH), .ACCUM_SIZE(ACCUM_SIZE)
+  .SYS_ROW(FIFO_WIDTH), .SYS_COL(FIFO_DEPTH), .DATA_WIDTH(DATA_WIDTH), .ACCUM_SIZE(ACCUM_SIZE)
 ) W_WR_CTRL(
   .clk        (clk),
   .rstn       (rstn),
@@ -97,13 +100,15 @@ mem_wr_ctrl #(
 );
 
 fifo_in_ctrl #(
-  .FIFO_WIDTH(FIFO_WIDTH), .FIFO_DEPTH(FIFO_DEPTH)
+  .FIFO_WIDTH(FIFO_WIDTH), .FIFO_DEPTH(FIFO_DEPTH), .SYS_ROW(SYS_ROW)
 ) FIFO_IN_CTRL(
   .clk          (clk),
   .rstn         (rstn),
   .en           (fifo_in_en),
+  .repeat_cnt   (repeat_cnt),
   .base_addr    (w_base_addr),
   .fifo_en      (fifo_in_en_out),
+  .fifo_data_in (fifo_data_in),
   .w_mem_rd_addr(w_rd_addr),
   .w_mem_rd_en  ()
 );
@@ -114,6 +119,7 @@ fifo_out_ctrl #(
   .clk      (clk),
   .rstn     (rstn),
   .en       (fifo_out_en),
+  .fifo_data_in(1'b1),
   .done     (fill_done),
   .fifo_en  (fifo_out_en_out),
   .w_wen    (w_wen)
@@ -255,7 +261,7 @@ task full_test();
   w_wr_en_in <= 1'b1;
   w_base_addr <= 0;
   #10;
-  for (i = 0; i < SYS_ROW; i = i + 1) begin
+  for (i = 0; i < 2*SYS_ROW; i = i + 1) begin
     #10;
     for (j = 0; j < SYS_COL; j = j + 1) begin
       w_wr_data[j] <= j + 1; // is it okay? unrolling issue
@@ -284,12 +290,13 @@ task full_test();
 
   
   #10;
-  // Fill weight to systolic array
+  // Fill weight to FIFO
   fifo_in_en <= 1'b1;
+  repeat_cnt <= 32'd2;
   #10;
   fifo_in_en <= 1'b0;
 
-  #50;
+  #100;
   // Start compute controller
   compute_ctrl_en <= 1'b1;
   num_row_in <= SYS_COL;

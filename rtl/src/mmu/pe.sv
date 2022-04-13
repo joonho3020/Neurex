@@ -10,6 +10,7 @@ module pe #(
   input                         clk,
   input                         rstn, // FIXME: is it really need?
   input                         en_in,
+  input                         w_invalid,
   input                         global_w_wen_in,
   input                         w_wen_in,
   input [DATA_WIDTH-1:0]        in,
@@ -37,6 +38,9 @@ logic [DATA_WIDTH-1:0] m_w_out;
 
 logic                  valid, valid2;
 logic                  m_valid, m_valid2;
+
+logic                  prev_global_w_wen;
+logic                  w_set_done;
 
 always_ff @(posedge clk, negedge rstn) begin
   w_wen_out <= m_w_wen;
@@ -69,6 +73,12 @@ always_comb begin
   end
 end
 
+assign w_set_done = !global_w_wen_in && prev_global_w_wen;
+
+always_ff @(posedge clk) begin
+  prev_global_w_wen <= global_w_wen_in;
+end
+
 // store weight
 always_comb begin
   m_w_wen = w_wen_in;
@@ -84,13 +94,25 @@ always_comb begin
     m_valid2 = valid2;
   end
 
-  if (!en_in && !valid && valid2) begin
+  //if (!en_in && !valid && valid2) begin
+  if (w_set_done && !valid && valid2) begin
     m_w = w2;
     m_valid = 1'b1;
     m_valid2 = 1'b0;
   end else begin
     m_w = w;
     m_valid = valid;
+  end
+
+  if (w_invalid) begin
+    if (valid2) begin
+      m_w = w2;
+      m_valid = 1'b1;
+      m_valid2 = 1'b0;
+    end else begin
+      m_w = {DATA_WIDTH{1'b0}};
+      m_valid = 1'b0;
+    end
   end
 
   if (!rstn) begin

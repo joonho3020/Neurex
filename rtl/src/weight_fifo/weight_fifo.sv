@@ -21,7 +21,7 @@ for (i = 0; i < FIFO_DEPTH; i = i + 1) begin : depth
     m_w_ff(
       .clk(clk),
       .rstn(rstn),
-      .en(en[i]),
+      .en(en[j]),
       .in(m_w_in[i][j]),
       .out(m_w_out[i][j])
     );

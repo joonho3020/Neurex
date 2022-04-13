@@ -10,17 +10,17 @@ module accum_col #(
   input [ADDR_WIDTH-1:0] rd_addr,
   input [ADDR_WIDTH-1:0] wr_addr,
   input [DATA_WIDTH-1:0] wr_data,
-  output logic [DATA_WIDTH-1:0] rd_data
+  output [DATA_WIDTH-1:0] rd_data
 );
 
 logic [DATA_WIDTH-1:0] accum_mem[0:ACCUM_ROW-1];
+
+assign rd_data = rd_en ? accum_mem[rd_addr] : 0;
 
 int i;
 always_ff @(posedge clk) begin
   if (wr_en) begin
     accum_mem[wr_addr] <= wr_data + accum_mem[wr_addr];
-  end else if (rd_en) begin
-    rd_data <= accum_mem[rd_addr];
   end
 
   if (!rstn) begin
