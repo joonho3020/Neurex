@@ -4,7 +4,7 @@ module top_neurex #(
   parameter  int unsigned FIFO_DEPTH = 2 * SYS_ROW,
   parameter  int unsigned DATA_WIDTH = 16,
   parameter  int unsigned ADDR_WIDTH = 16,
-  parameter  int unsigned ACCUM_SIZE = 1024,
+  parameter  int unsigned ACCUM_SIZE = 512,
   localparam int unsigned PSUM_WIDTH = 2 * DATA_WIDTH,
   localparam int unsigned FIFO_WIDTH = SYS_COL,
   localparam int unsigned ACCUM_ROW = ACCUM_SIZE / SYS_COL,
@@ -23,7 +23,8 @@ module top_neurex #(
   input                  in_en,
   input                  w_en,
   input [DATA_WIDTH-1:0] in_data[0:SYS_ROW-1],
-  input [DATA_WIDTH-1:0] w_data[0:SYS_COL-1]
+  input [DATA_WIDTH-1:0] w_data[0:SYS_COL-1],
+  output [PSUM_WIDTH-1:0] out_wr_data[0:SYS_COL-1]
 );
 
 // Weight Memory & FIFO Ports
@@ -94,7 +95,8 @@ logic [DATA_WIDTH-1:0] out_wr_cnt, m_out_wr_cnt;
 logic [SYS_COL-1:0] out_wr_en, m_out_wr_en;
 logic [ADDR_WIDTH-1:0] out_wr_addr[0:SYS_COL-1], m_out_wr_addr[0:SYS_COL-1];
 logic [ADDR_WIDTH-1:0] out_rd_addr[0:SYS_COL-1], m_out_rd_addr[0:SYS_COL-1];
-logic [PSUM_WIDTH-1:0] out_rd_data[0:SYS_COL-1], out_wr_data[0:SYS_COL-1];
+logic [PSUM_WIDTH-1:0] out_rd_data[0:SYS_COL-1];
+//logic [PSUM_WIDTH-1:0] out_wr_data[0:SYS_COL-1];
 
 // Systolic Array Done Ports
 logic sys_done;

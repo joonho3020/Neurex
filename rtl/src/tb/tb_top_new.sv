@@ -6,6 +6,7 @@ parameter int unsigned FIFO_DEPTH = 2 * SYS_COL;
 parameter int unsigned DATA_WIDTH = 16;
 parameter int unsigned ADDR_WIDTH = 16;
 parameter int unsigned ACCUM_SIZE = 32;
+localparam int unsigned PSUM_WIDTH = 2 * DATA_WIDTH;
 
 parameter int unsigned NUM_IN     = 8;
 parameter int unsigned NUM_COMMON = 8;
@@ -33,7 +34,8 @@ top_neurex #(
   .in_en(in_en),
   .w_en(w_en),
   .in_data(in_data),
-  .w_data(w_data)
+  .w_data(w_data),
+  .out_rd_data(out_rd_data)
 );
 
 always begin

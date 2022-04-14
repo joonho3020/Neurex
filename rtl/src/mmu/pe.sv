@@ -42,7 +42,7 @@ logic                  m_valid, m_valid2;
 logic                  prev_global_w_wen;
 logic                  w_set_done;
 
-always_ff @(posedge clk, negedge rstn) begin
+always_ff @(posedge clk) begin
   w_wen_out <= m_w_wen;
   en_out <= m_en;
   pass_out <= m_pass_out;
