@@ -7,11 +7,11 @@ module w_mem_wr_ctrl #(
   localparam int unsigned ACCUM_ROW = ACCUM_SIZE / SYS_COL,
   localparam int unsigned COUNT_WIDTH = $clog2(ACCUM_ROW) + 3
 ) (
-  input clk,
-  input rstn,
-  input w_en,
-  input [DATA_WIDTH-1:0] w_data[0:SYS_COL-1],
-  output logic [SYS_COL-1:0] w_wr_en,
+  input                         clk,
+  input                         rstn,
+  input                         w_en,
+  input [DATA_WIDTH-1:0]        w_data[0:SYS_COL-1],
+  output logic [SYS_COL-1:0]    w_wr_en,
   output logic [ADDR_WIDTH-1:0] w_wr_addr[0:SYS_COL-1],
   output logic [DATA_WIDTH-1:0] w_wr_data[0:SYS_COL-1]
 );
@@ -22,7 +22,7 @@ logic [COUNT_WIDTH-1:0] w_done_cnt;
 logic [31:0] m_w_row_cnt;
 logic [31:0] w_row_cnt;
 
-logic [SYS_COL-1:0] m_w_wr_en;
+logic [SYS_COL-1:0]    m_w_wr_en;
 logic [ADDR_WIDTH-1:0] m_w_wr_addr[0:SYS_COL-1];
 logic [DATA_WIDTH-1:0] m_w_wr_data[0:SYS_COL-1];
 

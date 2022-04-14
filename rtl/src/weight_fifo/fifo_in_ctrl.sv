@@ -5,21 +5,22 @@ module fifo_in_ctrl #(
   parameter  int unsigned ADDR_WIDTH = 16,
   localparam int unsigned COUNT_WIDTH = $clog2(FIFO_DEPTH) + 3
 ) (
-  input clk,
-  input rstn,
-  input en,
-  input [31:0] repeat_cnt,
-  input [ADDR_WIDTH-1:0] base_addr,
-  input [ADDR_WIDTH-1:0] offset_addr,
-  output logic fifo_data_in,
+  input                         clk,
+  input                         rstn,
+  input                         en,
+  input [31:0]                  repeat_cnt,
+  input [ADDR_WIDTH-1:0]        base_addr,
+  input [ADDR_WIDTH-1:0]        offset_addr,
+  output logic                  fifo_data_in,
   output logic [FIFO_WIDTH-1:0] fifo_en,
-  output logic [ADDR_WIDTH-1:0] w_mem_rd_addr [0:FIFO_WIDTH-1], // FIXME: addr_width = 8
+  output logic [ADDR_WIDTH-1:0] w_mem_rd_addr [0:FIFO_WIDTH-1], // FIXME: addr_width = 16
   output logic [FIFO_WIDTH-1:0] w_mem_rd_en,
-  output logic done
+  output logic                  done
 );
 
 // CAUTION: Should consider when read data is came out
 logic start, m_start, start2, m_start2, start3, m_start3, start4, m_start4;
+
 logic [COUNT_WIDTH-1:0] depth_cnt, m_depth_cnt;
 
 logic [ADDR_WIDTH-1:0] m_w_mem_rd_addr[0:FIFO_WIDTH-1]; // FIXME: addr_width = 8
@@ -27,6 +28,7 @@ logic [FIFO_WIDTH-1:0] m_w_mem_rd_en;
 
 logic [ADDR_WIDTH-1:0] base_addr_inter, m_base_addr;
 logic [ADDR_WIDTH-1:0] offset_addr_inter, m_offset_addr;
+
 logic [31:0] repeat_cnt_inter, m_repeat_cnt;
 
 logic m_done;
@@ -55,6 +57,7 @@ always_comb begin
   m_start2 = start; // For 2-cycle read latency
   m_start3 = start2; // For 2-cycle read latency
   m_start4 = start3; // For 2-cycle read latency
+
   m_base_addr = base_addr_inter;
   m_offset_addr = offset_addr_inter;
   m_repeat_cnt = repeat_cnt_inter;

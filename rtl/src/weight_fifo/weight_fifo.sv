@@ -3,10 +3,10 @@ module weight_fifo #(
   parameter int unsigned FIFO_WIDTH = 16,
   parameter int unsigned FIFO_DEPTH = 16
 ) (
-  input clk,
-  input rstn,
-  input [FIFO_WIDTH-1:0] en,
-  input [DATA_WIDTH-1:0] w_in[0:FIFO_WIDTH-1],
+  input                   clk,
+  input                   rstn,
+  input [FIFO_WIDTH-1:0]  en,
+  input [DATA_WIDTH-1:0]  w_in[0:FIFO_WIDTH-1],
   output [DATA_WIDTH-1:0] w_out[0:FIFO_WIDTH-1]
 );
 

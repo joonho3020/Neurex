@@ -4,24 +4,24 @@ module sys_array #(
   parameter  int unsigned DATA_WIDTH = 16,
   localparam int unsigned PSUM_WIDTH = DATA_WIDTH * 2
 ) (
-  input                       clk,
-  input                       rstn,
-  input                       en,
-  input [SYS_ROW-1:0]         w_invalid,
-  input [SYS_COL-1:0]         w_wen,
-  input [DATA_WIDTH-1:0]      in[0:SYS_ROW-1],
-  input [DATA_WIDTH-1:0]      w_in[0:SYS_COL-1],
-  output [PSUM_WIDTH-1:0]     psum_out[0:SYS_COL-1],
-  output [SYS_COL-1:0]        en_out
+  input                   clk,
+  input                   rstn,
+  input                   en,
+  input [SYS_ROW-1:0]     w_invalid,
+  input [SYS_COL-1:0]     w_wen,
+  input [DATA_WIDTH-1:0]  in[0:SYS_ROW-1],
+  input [DATA_WIDTH-1:0]  w_in[0:SYS_COL-1],
+  output [PSUM_WIDTH-1:0] psum_out[0:SYS_COL-1],
+  output [SYS_COL-1:0]    en_out
 );
 
-logic [DATA_WIDTH-1:0]      m_w_out[0:SYS_ROW-2][0:SYS_COL-1];
-logic [PSUM_WIDTH-1:0]      m_psum_out[0:SYS_ROW-2][0:SYS_COL-1];
+logic [DATA_WIDTH-1:0]    m_w_out[0:SYS_ROW-2][0:SYS_COL-1];
+logic [PSUM_WIDTH-1:0]    m_psum_out[0:SYS_ROW-2][0:SYS_COL-1];
 
-logic [SYS_COL-1:0]         m_en[0:SYS_ROW-2];
-logic [SYS_COL-1:0]         m_w_wen[0:SYS_ROW-2];
+logic [SYS_COL-1:0]       m_en[0:SYS_ROW-2];
+logic [SYS_COL-1:0]       m_w_wen[0:SYS_ROW-2];
 
-logic [PSUM_WIDTH-1:0]      zero_psum[0:SYS_COL-1];
+logic [PSUM_WIDTH-1:0]    zero_psum[0:SYS_COL-1];
 
 genvar i;
 generate
@@ -30,8 +30,7 @@ generate
       sys_row #(
         .SYS_COL(SYS_COL),
         .DATA_WIDTH(DATA_WIDTH)
-      )
-      m_first_sys_row
+      ) m_first_sys_row
       (
         .clk        (clk),
         .rstn       (rstn),
@@ -51,8 +50,7 @@ generate
       sys_row #(
         .SYS_COL(SYS_COL),
         .DATA_WIDTH(DATA_WIDTH)
-      )
-      m_last_sys_row 
+      ) m_last_sys_row 
       (
         .clk        (clk),
         .rstn       (rstn),
@@ -72,8 +70,7 @@ generate
       sys_row #(
         .SYS_COL(SYS_COL),
         .DATA_WIDTH(DATA_WIDTH)
-      )
-      m_middle_sys_row 
+      ) m_middle_sys_row 
       (
         .clk        (clk),
         .rstn       (rstn),

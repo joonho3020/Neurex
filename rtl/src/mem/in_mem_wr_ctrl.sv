@@ -6,23 +6,23 @@ module in_mem_wr_ctrl #(
   parameter  int unsigned ACCUM_SIZE = 1024,
   localparam int unsigned ACCUM_ROW = ACCUM_SIZE / SYS_COL
 ) (
-  input clk,
-  input rstn,
-  input in_en,
-  input [DATA_WIDTH-1:0] in_data[0:SYS_ROW-1],
+  input                         clk,
+  input                         rstn,
+  input                         in_en,
+  input [DATA_WIDTH-1:0]        in_data[0:SYS_ROW-1],
   //input [DATA_WIDTH-1:0] num_in, // FIXME: do not check how many the input
-  //data came in
-  input [DATA_WIDTH-1:0] num_common,
-  output logic [SYS_ROW-1:0] in_wr_en,
+  //data (M) came in
+  input [DATA_WIDTH-1:0]        num_common,
+  output logic [SYS_ROW-1:0]    in_wr_en,
   output logic [ADDR_WIDTH-1:0] in_wr_addr[0:SYS_ROW-1],
   output logic [DATA_WIDTH-1:0] in_wr_data[0:SYS_ROW-1],
-  output logic [31:0] in_row_offset
+  output logic [31:0]           in_row_offset
 );
 
 logic [31:0] m_in_row_offset, m_in_col_offset;
 logic [31:0] in_col_offset;
 
-logic [SYS_ROW-1:0] m_in_wr_en;
+logic [SYS_ROW-1:0]    m_in_wr_en;
 logic [ADDR_WIDTH-1:0] m_in_wr_addr[0:SYS_ROW-1];
 logic [DATA_WIDTH-1:0] m_in_wr_data[0:SYS_ROW-1];
 

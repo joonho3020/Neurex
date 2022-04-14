@@ -3,16 +3,15 @@ module accum_wr_ctrl #(
   parameter  int unsigned ACCUM_ROW = 256,
   localparam int unsigned ADDR_WIDTH = $clog2(ACCUM_ROW)
 ) (
-  input clk,
-  input rstn,
-  input wr_en_in,
-  // FIXME: we should compute address which is offset of row id % ACCUM_ROW
-  input [ADDR_WIDTH-1:0] wr_addr_in, 
-  output [SYS_COL-1:0] wr_en_out,
+  input                   clk,
+  input                   rstn,
+  input                   wr_en_in,
+  input [ADDR_WIDTH-1:0]  wr_addr_in, 
+  output [SYS_COL-1:0]    wr_en_out,
   output [ADDR_WIDTH-1:0] wr_addr_out[0:SYS_COL-1]
 );
 
-logic [SYS_COL-1:0] wr_en_shift, m_wr_en_shift;
+logic [SYS_COL-1:0]    wr_en_shift, m_wr_en_shift;
 logic [ADDR_WIDTH-1:0] wr_addr_shift[0:SYS_COL-1];
 logic [ADDR_WIDTH-1:0] m_wr_addr_shift[0:SYS_COL-1];
 

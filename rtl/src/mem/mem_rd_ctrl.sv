@@ -7,18 +7,18 @@ module mem_rd_ctrl #(
   localparam int unsigned ACCUM_ROW = ACCUM_SIZE / SYS_COL,
   localparam int unsigned COUNT_WIDTH = $clog2(ACCUM_ROW) + 2
 ) (
-  input                       clk,
-  input                       rstn,
-  input                       rd_en_in,
-  input [DATA_WIDTH-1:0]      num_row, // Assumption: num_row should be less than or equal to ACCUM_ROW
-  input [ADDR_WIDTH-1:0]                 base_addr,
-  output logic [SYS_ROW-1:0]  rd_en_out,
-  output logic [ADDR_WIDTH-1:0]          rd_addr[0:SYS_ROW-1] // FIXME: addr_width = 16
+  input                         clk,
+  input                         rstn,
+  input                         rd_en_in,
+  input [DATA_WIDTH-1:0]        num_row, // Assumption: num_row should be less than or equal to ACCUM_ROW
+  input [ADDR_WIDTH-1:0]        base_addr,
+  output logic [SYS_ROW-1:0]    rd_en_out,
+  output logic [ADDR_WIDTH-1:0] rd_addr[0:SYS_ROW-1] // FIXME: addr_width = 16
 );
 
 logic [SYS_ROW-1:0]     rd_en;
 logic [SYS_ROW-1:0]     m_rd_en, rd_en2, m_rd_en2, rd_en3, m_rd_en3;
-logic [ADDR_WIDTH-1:0]             m_rd_addr[0:SYS_ROW-1]; // FIXME: addr_width = 16
+logic [ADDR_WIDTH-1:0]  m_rd_addr[0:SYS_ROW-1]; // FIXME: addr_width = 16
 
 logic [COUNT_WIDTH-1:0] rd_row_cnt;
 logic [COUNT_WIDTH-1:0] m_rd_row_cnt;

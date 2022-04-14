@@ -3,13 +3,13 @@ module accum_col #(
   parameter  int unsigned DATA_WIDTH = 32,
   localparam int unsigned ADDR_WIDTH = $clog2(ACCUM_ROW)
 ) (
-  input clk,
-  input rstn,
-  input rd_en,
-  input wr_en,
-  input [ADDR_WIDTH-1:0] rd_addr,
-  input [ADDR_WIDTH-1:0] wr_addr,
-  input [DATA_WIDTH-1:0] wr_data,
+  input                   clk,
+  input                   rstn,
+  input                   rd_en,
+  input                   wr_en,
+  input [ADDR_WIDTH-1:0]  rd_addr,
+  input [ADDR_WIDTH-1:0]  wr_addr,
+  input [DATA_WIDTH-1:0]  wr_data,
   output [DATA_WIDTH-1:0] rd_data
 );
 

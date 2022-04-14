@@ -5,13 +5,13 @@ module accum #(
   localparam int unsigned ACCUM_ROW = ACCUM_SIZE / SYS_COL,
   localparam int unsigned ADDR_WIDTH = $clog2(ACCUM_ROW)
 ) (
-  input clk,
-  input rstn,
-  input [SYS_COL-1:0] rd_en,
-  input [SYS_COL-1:0] wr_en,
-  input [ADDR_WIDTH-1:0] rd_addr[0:SYS_COL-1],
-  input [ADDR_WIDTH-1:0] wr_addr[0:SYS_COL-1],
-  input [DATA_WIDTH-1:0] wr_data[0:SYS_COL-1],
+  input                   clk,
+  input                   rstn,
+  input [SYS_COL-1:0]     rd_en,
+  input [SYS_COL-1:0]     wr_en,
+  input [ADDR_WIDTH-1:0]  rd_addr[0:SYS_COL-1],
+  input [ADDR_WIDTH-1:0]  wr_addr[0:SYS_COL-1],
+  input [DATA_WIDTH-1:0]  wr_data[0:SYS_COL-1],
   output [DATA_WIDTH-1:0] rd_data[0:SYS_COL-1]
 );
 

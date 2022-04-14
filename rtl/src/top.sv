@@ -15,18 +15,18 @@ module top_neurex #(
   localparam [2:0] COMPUTE     = 3'b010,
   localparam [2:0] OUT_STORE   = 3'b011
 ) (
-  input clk,
-  input rstn,
+  input                  clk,
+  input                  rstn,
   input [DATA_WIDTH-1:0] num_in,
   input [DATA_WIDTH-1:0] num_common,
   input [DATA_WIDTH-1:0] num_out,
-  input in_en,
-  input w_en,
+  input                  in_en,
+  input                  w_en,
   input [DATA_WIDTH-1:0] in_data[0:SYS_ROW-1],
   input [DATA_WIDTH-1:0] w_data[0:SYS_COL-1]
 );
 
-// Weight memory & FIFO side
+// Weight Memory & FIFO Ports
 logic [31:0] w_row_cnt;
 
 logic [FIFO_WIDTH-1:0] fifo_in_en_out, fifo_out_en_out;
@@ -42,7 +42,7 @@ logic [DATA_WIDTH-1:0] w_rd_data[0:SYS_ROW-1];
 logic [SYS_COL-1:0] w_wen;
 logic [DATA_WIDTH-1:0] w_out[0:FIFO_WIDTH-1];
 
-// Input memory side
+// Input Memory Ports
 logic [31:0] in_row_offset;
 
 logic [SYS_ROW-1:0] in_wr_en;
@@ -53,11 +53,11 @@ logic [SYS_ROW-1:0] in_rd_en;
 logic [ADDR_WIDTH-1:0] in_rd_addr[0:SYS_ROW-1];
 logic [DATA_WIDTH-1:0] in_rd_data[0:SYS_ROW-1];
 
-// MMU side
+// MMU Ports
 logic [PSUM_WIDTH-1:0] psum_out [0:SYS_COL-1];
 logic [SYS_COL-1:0] en_out;
 
-// Controller side
+// Controller Ports
 logic in_wr_done;
 logic w_wr_done;
 logic fill_done; // fifo_in_ctrl output
@@ -89,25 +89,25 @@ logic [SYS_COL-1:0] accum_rd_en, m_accum_rd_en;
 logic [$clog2(ACCUM_ROW)-1:0] accum_rd_addr[0:SYS_COL-1], m_accum_rd_addr[0:SYS_COL-1];
 logic [PSUM_WIDTH-1:0] accum_rd_data[0:SYS_COL-1];
 
-// Output memory side
+// Output Memory Ports
 logic [DATA_WIDTH-1:0] out_wr_cnt, m_out_wr_cnt;
 logic [SYS_COL-1:0] out_wr_en, m_out_wr_en;
 logic [ADDR_WIDTH-1:0] out_wr_addr[0:SYS_COL-1], m_out_wr_addr[0:SYS_COL-1];
 logic [ADDR_WIDTH-1:0] out_rd_addr[0:SYS_COL-1], m_out_rd_addr[0:SYS_COL-1];
 logic [PSUM_WIDTH-1:0] out_rd_data[0:SYS_COL-1], out_wr_data[0:SYS_COL-1];
 
-// Systolic array done signals
+// Systolic Array Done Ports
 logic sys_done;
 logic prev_sys_done;
 logic cur_sys_done, m_cur_sys_done;
 
-// Master controller
+// Master Controller Ports
 logic [2:0] state, m_state;
 logic [DATA_WIDTH-1:0] num_tile_row, m_num_tile_row;
 logic [DATA_WIDTH-1:0] tile_row_cnt, m_tile_row_cnt, tile_col_cnt, m_tile_col_cnt;
 
-// Module instantiation
-// Weight memory & FIFO & Controllers
+// Module Instantiation
+// Weight Memory & FIFO & Controllers
 mem_arr #(
   .NUM_BANK(FIFO_WIDTH), .DATA_WIDTH(DATA_WIDTH)
 ) W_MEM(
@@ -150,7 +150,7 @@ fifo_in_ctrl #(
 );
 
 fifo_out_ctrl #(
-  .SYS_ROW(SYS_ROW), .FIFO_WIDTH(FIFO_WIDTH), .FIFO_DEPTH(FIFO_DEPTH)
+  .SYS_ROW(SYS_ROW), .FIFO_WIDTH(FIFO_WIDTH)
 ) FIFO_OUT_CTRL(
   .clk      (clk),
   .rstn     (rstn),
@@ -226,7 +226,7 @@ in_mem_wr_ctrl #(
   .in_row_offset  (in_row_offset)
 );
 
-// Accumulator
+// Accumulator & Controller
 accum #(
   .SYS_COL(SYS_COL), .DATA_WIDTH(PSUM_WIDTH), .ACCUM_SIZE(ACCUM_SIZE)
 ) ACCUM(
@@ -260,7 +260,7 @@ relu_arr #(
   .out  (out_wr_data)
 );
 
-// Output memory
+// Output Memory
 out_mem_arr #(
   .NUM_BANK(SYS_COL), .DATA_WIDTH(PSUM_WIDTH)
 ) OUT_MEM(
@@ -274,7 +274,7 @@ out_mem_arr #(
   .rd_data  (out_rd_data)
 );
 
-// Main controller: compute_ctrl
+// Main Controller: COMPUTE_CTRL
 compute_ctrl #(
   .SYS_ROW(SYS_ROW), .DATA_WIDTH(DATA_WIDTH)
 ) COMPUTE_CTRL(

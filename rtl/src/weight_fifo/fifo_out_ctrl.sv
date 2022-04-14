@@ -1,19 +1,20 @@
 module fifo_out_ctrl #(
   parameter  int unsigned SYS_ROW    = 16,
   parameter  int unsigned FIFO_WIDTH = 16,
-  parameter  int unsigned FIFO_DEPTH = 16,
   localparam int unsigned COUNT_WIDTH = $clog2(FIFO_WIDTH) + 1
 ) (
-  input clk,
-  input rstn,
-  input en,
-  input fifo_data_in, // after 2 cycle (read latency), fifo_data_in is turned on
-  output done,
+  input                   clk,
+  input                   rstn,
+  input                   en,
+  // after 2 cycle (read latency), fifo_data_in is turned on
+  input                   fifo_data_in,
+  output                  done,
   output [FIFO_WIDTH-1:0] fifo_en,
   output [FIFO_WIDTH-1:0] w_wen
 );
 
 logic start, m_start;
+
 logic [COUNT_WIDTH-1:0] depth_cnt, m_depth_cnt;
 
 assign fifo_en = {FIFO_WIDTH{start & fifo_data_in}};

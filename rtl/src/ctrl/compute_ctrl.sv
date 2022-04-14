@@ -7,21 +7,19 @@ module compute_ctrl #(
   localparam [1:0] W_FILL           = 2'b01,
   localparam [1:0] READ_AND_COMPUTE = 2'b10
 ) (
-  input clk,
-  input rstn,
-  input en,
-  input [DATA_WIDTH-1:0] num_row_in,
-  input drain_done,
-  input sys_done,
-  input sys_en_out,
-  input weight_fill, // if already double buffered, weight_fill = 0
-  input weight_change, // is double buffering is needed?
-  //input [ADDR_WIDTH-1:0] base_addr,
+  input                         clk,
+  input                         rstn,
+  input                         en,
+  input [DATA_WIDTH-1:0]        num_row_in,
+  input                         drain_done,
+  input                         sys_done,
+  input                         sys_en_out,
+  input                         weight_fill, // if already double buffered, weight_fill = 0
+  input                         weight_change, // is double buffering is needed?
   output logic [ADDR_WIDTH-1:0] accum_wr_addr,
-  //output logic [DATA_WIDTH-1:0] num_row_out,
-  output logic fifo_out_ctrl_en,
-  output logic fifo_in_ctrl_en,
-  output logic mem_rd_ctrl_en,
+  output logic                  fifo_out_ctrl_en,
+  output logic                  fifo_in_ctrl_en,
+  output logic                  mem_rd_ctrl_en,
   output logic [ADDR_WIDTH-1:0] w_offset_addr
 );
 
@@ -39,10 +37,10 @@ logic [ADDR_WIDTH-1:0] m_accum_wr_addr, m_w_offset_addr;
 
 
 always_ff @(posedge clk) begin
+  state <= m_state;
   fifo_out_ctrl_en <= m_fifo_out_ctrl_en;
   fifo_in_ctrl_en <= m_fifo_in_ctrl_en;
   mem_rd_ctrl_en <= m_mem_rd_ctrl_en;
-  state <= m_state;
   drain_done_inter <= m_drain_done;
   weight_change_inter <= m_weight_change;
   num_row_inter <= m_num_row;
@@ -145,10 +143,10 @@ end
 /* 
 always_comb begin
   m_accum_wr_addr = accum_wr_addr;
-  if (sys_done) begin
+  if (sys_en_out) begin
     m_accum_wr_addr = accum_wr_addr + 1;
   end
-  if (accum_wr_addr == num_row_inter - 1) begin
+  if (accum_wr_addr == num_row_inter) begin
     m_accum_wr_addr = 0;
   end
 end
