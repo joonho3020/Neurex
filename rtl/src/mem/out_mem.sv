@@ -23,13 +23,13 @@ generate
       .clka       (clk),
       .ena        (rd_en[i]),
       .wea        (1'b0),
-      .addra      (rd_addr[i]),
+      .addra      (8'(rd_addr[i])),
       .dina       ({DATA_WIDTH{1'b0}}),
       .douta      (rd_data[i]),
       .clkb       (clk),
       .enb        (wr_en[i]),
       .web        (wr_en[i]),
-      .addrb      (wr_addr[i]),
+      .addrb      (8'(wr_addr[i])),
       .dinb       (wr_data[i]),
       .doutb      (rd_data2[i])
     );
