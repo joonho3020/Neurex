@@ -58,6 +58,8 @@ logic [DATA_WIDTH-1:0] in_rd_data[0:SYS_ROW-1];
 logic [PSUM_WIDTH-1:0] psum_out [0:SYS_COL-1];
 logic [SYS_COL-1:0] en_out;
 
+logic [PSUM_WIDTH-1:0] psum_out_buff [0:SYS_COL-1];
+
 // Controller Ports
 logic in_wr_done;
 logic w_wr_done;
@@ -238,7 +240,7 @@ accum #(
   .wr_en      (accum_wr_en),
   .rd_addr    (accum_rd_addr),
   .wr_addr    (tot_accum_wr_addr),
-  .wr_data    (psum_out),
+  .wr_data    (psum_out_buff),
   .rd_data    (accum_rd_data)
 );
 
@@ -544,7 +546,6 @@ always_comb begin
   end
 end
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 assign sys_done = prev_sys_done && !cur_sys_done;
 
@@ -559,6 +560,11 @@ always_comb begin
   for (l = 0; l < SYS_COL; l = l + 1) begin
     m_cur_sys_done = m_cur_sys_done | en_out[l];
   end
+end
+
+/////////////////////////////////////////////////////////////////////////////////////////
+always_ff @(posedge clk) begin
+  psum_out_buff <= psum_out;
 end
 
 endmodule

@@ -21,6 +21,7 @@ logic in_en;
 logic w_en;
 logic [DATA_WIDTH-1:0] in_data[0:SYS_ROW-1];
 logic [DATA_WIDTH-1:0] w_data[0:SYS_COL-1];
+logic [PSUM_WIDTH-1:0] out_wr_data[0:SYS_COL-1];
 
 // Module instantiation
 top_neurex #(
@@ -35,7 +36,7 @@ top_neurex #(
   .w_en(w_en),
   .in_data(in_data),
   .w_data(w_data),
-  .out_rd_data(out_rd_data)
+  .out_wr_data(out_wr_data)
 );
 
 always begin

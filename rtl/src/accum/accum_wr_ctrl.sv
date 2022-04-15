@@ -16,8 +16,10 @@ logic [ADDR_WIDTH-1:0] wr_addr_shift[0:SYS_COL-1];
 logic [ADDR_WIDTH-1:0] m_wr_addr_shift[0:SYS_COL-1];
 
 //assign wr_en_out = {wr_en_shift, wr_en_in};
-assign wr_en_out = m_wr_en_shift;
-assign wr_addr_out = m_wr_addr_shift;
+/* assign wr_en_out = m_wr_en_shift; */
+/* assign wr_addr_out = m_wr_addr_shift; */
+assign wr_en_out = wr_en_shift;
+assign wr_addr_out = wr_addr_shift;
 
 always_ff @(posedge clk) begin
   wr_en_shift <= m_wr_en_shift;
