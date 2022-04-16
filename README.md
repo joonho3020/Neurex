@@ -1,4 +1,4 @@
-# NEUREX: A Case for Neural Rendering Accelerator
+# NEUREX: A Case for Neural Rendering Acceleration
 
 - `rtl`: RTL source code
 - `sim`: Cycle-level simulator
