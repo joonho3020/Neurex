@@ -210,14 +210,14 @@ always_comb begin
       m_f01_0 = f01_0 * feat[1];
       m_f01_1 = f01_0 * feat[0];
 
-      m_f23_0 = f23_0 * feat[1];
-      m_f23_1 = f23_0 * feat[0];
+      m_f23_0 = f23_0 * feat[3];
+      m_f23_1 = f23_0 * feat[2];
 
-      m_f45_0 = f45_0 * feat[1];
-      m_f45_1 = f45_0 * feat[0];
+      m_f45_0 = f45_0 * feat[5];
+      m_f45_1 = f45_0 * feat[4];
 
-      m_f67_0 = f67_0 * feat[1];
-      m_f67_1 = f67_0 * feat[0];
+      m_f67_0 = f67_0 * feat[7];
+      m_f67_1 = f67_0 * feat[6];
     end
     X_ADD: begin
       m_state = Y_MINUS;
@@ -230,13 +230,13 @@ always_comb begin
     Y_MINUS: begin
       m_state = Y_DIV;
 
-      m_f0123_upper0 = y[8] - y[2];
-      m_f0123_upper1 = y[0] - y[8];
-      m_f0123_lower = y[0] - y[2];
+      m_f0123_upper0 = y[8] - y[0];
+      m_f0123_upper1 = y[2] - y[8];
+      m_f0123_lower = y[2] - y[0];
 
-      m_f4567_upper0 = y[8] - y[6];
-      m_f4567_upper1 = y[4] - y[8];
-      m_f4567_lower = y[4] - y[6];
+      m_f4567_upper0 = y[8] - y[4];
+      m_f4567_upper1 = y[6] - y[8];
+      m_f4567_lower = y[6] - y[4];
     end
     Y_DIV: begin
       m_state = Y_MULT;
@@ -265,9 +265,9 @@ always_comb begin
     Z_MINUS: begin
       m_state = Z_DIV;
 
-      m_fout_upper0 = z[8] - z[4];
-      m_fout_upper1 = z[0] - z[8];
-      m_fout_lower  = z[0] - z[4];
+      m_fout_upper0 = z[8] - z[0];
+      m_fout_upper1 = z[4] - z[8];
+      m_fout_lower  = z[4] - z[0];
     end
     Z_DIV: begin
       m_state = Z_MULT;
