@@ -2,11 +2,11 @@ module idx_grp_cal #(
   parameter  int unsigned DATA_SIZE      = 32,
   parameter  int unsigned PRIME1         = 2654435761,
   parameter  int unsigned PRIME2         = 805459861,
-  parameter  int unsigned TABLE_SIZE0    = 4096,
-  parameter  int unsigned TABLE_SIZE1    = 13824,
-  parameter  int unsigned TABLE_SIZE2    = 46656,
-  parameter  int unsigned TABLE_SIZE3    = 166375,
-  parameter  int unsigned TABLE_SIZE_MAX = 524288,
+  parameter  int unsigned TABLE_SIZE     = 4096,
+  //parameter  int unsigned TABLE_SIZE1    = 13824,
+  //parameter  int unsigned TABLE_SIZE2    = 46656,
+  //parameter  int unsigned TABLE_SIZE3    = 166375,
+  //parameter  int unsigned TABLE_SIZE_MAX = 524288,
 
   localparam [2:0] IDLE         = 3'b000,
   localparam [2:0] RES_MULT     = 3'b001,
@@ -68,11 +68,14 @@ always_comb begin
     end
     RES_MULT: begin
       m_state = IDX_FLOOR;
+
       m_pos_idx[0] = x_inter * res_inter[0];
       m_pos_idx[1] = y_inter * res_inter[1];
       m_pos_idx[2] = z_inter * res_inter[2];
     end
     IDX_FLOOR: begin
+      m_state = HASHING_MULT;
+
       m_pos_idx_surround[0][0] = $rtoi(pos_idx[0]);
       m_pos_idx_surround[0][1] = $rtoi(pos_idx[1]);
       m_pos_idx_surround[0][2] = $rtoi(pos_idx[2]);
@@ -155,14 +158,14 @@ always_comb begin
     HASHING_MOD: begin
       m_state = IDLE;
 
-      m_hash_idx[0] = hash_idx_xor % TABLE_SIZE0;
-      m_hash_idx[1] = hash_idx_xor % TABLE_SIZE1;
-      m_hash_idx[2] = hash_idx_xor % TABLE_SIZE2;
-      m_hash_idx[3] = hash_idx_xor % TABLE_SIZE3;
-      m_hash_idx[4] = hash_idx_xor % TABLE_SIZE_MAX;
-      m_hash_idx[5] = hash_idx_xor % TABLE_SIZE_MAX;
-      m_hash_idx[6] = hash_idx_xor % TABLE_SIZE_MAX;
-      m_hash_idx[7] = hash_idx_xor % TABLE_SIZE_MAX;
+      m_hash_idx[0] = hash_idx_xor % TABLE_SIZE;
+      m_hash_idx[1] = hash_idx_xor % TABLE_SIZE;
+      m_hash_idx[2] = hash_idx_xor % TABLE_SIZE;
+      m_hash_idx[3] = hash_idx_xor % TABLE_SIZE;
+      m_hash_idx[4] = hash_idx_xor % TABLE_SIZE;
+      m_hash_idx[5] = hash_idx_xor % TABLE_SIZE;
+      m_hash_idx[6] = hash_idx_xor % TABLE_SIZE;
+      m_hash_idx[7] = hash_idx_xor % TABLE_SIZE;
     end
     default: begin
       m_state = IDLE;
