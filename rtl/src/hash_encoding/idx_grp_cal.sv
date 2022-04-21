@@ -1,4 +1,5 @@
 module idx_grp_cal #(
+  parameter  int unsigned HALF_SIZE      = 16,
   parameter  int unsigned DATA_SIZE      = 32,
   parameter  int unsigned PRIME1         = 2654435761,
   parameter  int unsigned PRIME2         = 805459861,
@@ -16,24 +17,25 @@ module idx_grp_cal #(
   localparam [2:0] HASHING_MOD  = 3'b101
 ) (
   input clk,
-  input rstn,
   input en,
-  input [DATA_SIZE-1:0] x,
-  input [DATA_SIZE-1:0] y,
-  input [DATA_SIZE-1:0] z,
-  input [DATA_SIZE-1:0] res[0:2],
+  input [HALF_SIZE-1:0] x,
+  input [HALF_SIZE-1:0] y,
+  input [HALF_SIZE-1:0] z,
+  input [HALF_SIZE-1:0] res,
   output logic [DATA_SIZE-1:0] hash_idx[0:7]
 );
 
 // TODO: x, y, z -> FP32, idx -> uint_32
 logic [2:0] state, m_state;
-logic [DATA_SIZE-1:0] m_x, m_y, m_z;
-logic [DATA_SIZE-1:0] res_inter[0:2], m_res[0:2];
-logic [DATA_SIZE-1:0] x_inter, y_inter, z_inter;
-logic [DATA_SIZE-1:0] pos_idx_surround[0:7][0:2];
-logic [DATA_SIZE-1:0] m_pos_idx_surround[0:7][0:2];
-real m_pos_idx[0:2];
-real pos_idx[0:2];
+logic [HALF_SIZE-1:0] m_x, m_y, m_z;
+logic [HALF_SIZE-1:0] res_inter, m_res;
+logic [HALF_SIZE-1:0] x_inter, y_inter, z_inter;
+logic [HALF_SIZE-1:0] pos_idx_surround[0:7][0:2];
+logic [HALF_SIZE-1:0] m_pos_idx_surround[0:7][0:2];
+logic [HALF_SIZE-1:0] pos_idx[0:2];
+logic [HALF_SIZE-1:0] m_pos_idx[0:2];
+//real pos_idx[0:2];
+//real m_pos_idx[0:2];
 
 logic [DATA_SIZE-1:0] hash_idx_single[0:7][0:2];
 logic [DATA_SIZE-1:0] m_hash_idx_single[0:7][0:2];
@@ -55,6 +57,16 @@ always_ff @(posedge clk) begin
 end
 
 always_comb begin
+  m_x = x_inter;
+  m_y = y_inter;
+  m_z = z_inter;
+  m_res = res_inter;
+  m_pos_idx = pos_idx;
+  m_pos_idx_surround = pos_idx_surround;
+  m_hash_idx_single = hash_idx_single;
+  m_hash_idx_xor = hash_idx_xor;
+  m_hash_idx = hash_idx;
+
   unique case (state)
     IDLE: begin
       m_state = IDLE;
@@ -69,79 +81,90 @@ always_comb begin
     RES_MULT: begin
       m_state = IDX_FLOOR;
 
-      m_pos_idx[0] = x_inter * res_inter[0];
-      m_pos_idx[1] = y_inter * res_inter[1];
-      m_pos_idx[2] = z_inter * res_inter[2];
+      m_pos_idx[0] = x_inter * res_inter;
+      //m_pos_idx_upper[0] = x_inter_upper * res_inter_upper;
+      //m_pos_idx_middle[0] = x_inter_upper * res_inter_lower + x_inter_lower * res_inter_upper;
+      //m_pos_idx_lower[0] = x_inter_lower * res_inter_lower;
+
+      m_pos_idx[1] = y_inter * res_inter;
+      //m_pos_idx_upper[1] = y_inter_upper * res_inter_upper;
+      //m_pos_idx_middle[1] = y_inter_upper * res_inter_lower + y_inter_lower * res_inter_upper;
+      //m_pos_idx_lower[1] = y_inter_lower * res_inter_lower;
+
+      m_pos_idx[2] = z_inter * res_inter;
+      //m_pos_idx_upper[2] = z_inter_upper * res_inter_upper;
+      //m_pos_idx_middle[2] = z_inter_upper * res_inter_lower + z_inter_lower * res_inter_upper;
+      //m_pos_idx_lower[2] = z_inter_lower * res_inter_lower;
     end
-    IDX_FLOOR: begin
+    IDX_FLOOR: begin // INT32
       m_state = HASHING_MULT;
 
-      m_pos_idx_surround[0][0] = $rtoi(pos_idx[0]);
-      m_pos_idx_surround[0][1] = $rtoi(pos_idx[1]);
-      m_pos_idx_surround[0][2] = $rtoi(pos_idx[2]);
+      m_pos_idx_surround[0][0] = pos_idx[0];
+      m_pos_idx_surround[0][1] = pos_idx[1];
+      m_pos_idx_surround[0][2] = pos_idx[2];
 
-      m_pos_idx_surround[1][0] = $rtoi(pos_idx[0]) + 1;
-      m_pos_idx_surround[1][1] = $rtoi(pos_idx[1]);
-      m_pos_idx_surround[1][2] = $rtoi(pos_idx[2]);
+      m_pos_idx_surround[1][0] = pos_idx[0] + 1;
+      m_pos_idx_surround[1][1] = pos_idx[1];
+      m_pos_idx_surround[1][2] = pos_idx[2];
 
-      m_pos_idx_surround[2][0] = $rtoi(pos_idx[0]);
-      m_pos_idx_surround[2][1] = $rtoi(pos_idx[1]) + 1;
-      m_pos_idx_surround[2][2] = $rtoi(pos_idx[2]);
+      m_pos_idx_surround[2][0] = pos_idx[0];
+      m_pos_idx_surround[2][1] = pos_idx[1] + 1;
+      m_pos_idx_surround[2][2] = pos_idx[2];
 
-      m_pos_idx_surround[3][0] = $rtoi(pos_idx[0]) + 1;
-      m_pos_idx_surround[3][1] = $rtoi(pos_idx[1]) + 1;
-      m_pos_idx_surround[3][2] = $rtoi(pos_idx[2]);
+      m_pos_idx_surround[3][0] = pos_idx[0] + 1;
+      m_pos_idx_surround[3][1] = pos_idx[1] + 1;
+      m_pos_idx_surround[3][2] = pos_idx[2];
 
-      m_pos_idx_surround[4][0] = $rtoi(pos_idx[0]);
-      m_pos_idx_surround[4][1] = $rtoi(pos_idx[1]);
-      m_pos_idx_surround[4][2] = $rtoi(pos_idx[2]) + 1;
+      m_pos_idx_surround[4][0] = pos_idx[0];
+      m_pos_idx_surround[4][1] = pos_idx[1];
+      m_pos_idx_surround[4][2] = pos_idx[2] + 1;
 
-      m_pos_idx_surround[5][0] = $rtoi(pos_idx[0]) + 1;
-      m_pos_idx_surround[5][1] = $rtoi(pos_idx[1]);
-      m_pos_idx_surround[5][2] = $rtoi(pos_idx[2]) + 1;
+      m_pos_idx_surround[5][0] = pos_idx[0] + 1;
+      m_pos_idx_surround[5][1] = pos_idx[1];
+      m_pos_idx_surround[5][2] = pos_idx[2] + 1;
 
-      m_pos_idx_surround[6][0] = $rtoi(pos_idx[0]);
-      m_pos_idx_surround[6][1] = $rtoi(pos_idx[1]) + 1;
-      m_pos_idx_surround[6][2] = $rtoi(pos_idx[2]) + 1;
+      m_pos_idx_surround[6][0] = pos_idx[0];
+      m_pos_idx_surround[6][1] = pos_idx[1] + 1;
+      m_pos_idx_surround[6][2] = pos_idx[2] + 1;
 
-      m_pos_idx_surround[7][0] = $rtoi(pos_idx[0]) + 1;
-      m_pos_idx_surround[7][1] = $rtoi(pos_idx[1]) + 1;
-      m_pos_idx_surround[7][2] = $rtoi(pos_idx[2]) + 1;
+      m_pos_idx_surround[7][0] = pos_idx[0] + 1;
+      m_pos_idx_surround[7][1] = pos_idx[1] + 1;
+      m_pos_idx_surround[7][2] = pos_idx[2] + 1;
     end
     HASHING_MULT: begin // INT multiplication
       m_state = HASHING_XOR;
 
-      m_hash_idx_single[0][0] = pos_idx_surround[0][0];
-      m_hash_idx_single[0][1] = pos_idx_surround[0][1] * PRIME1;
-      m_hash_idx_single[0][2] = pos_idx_surround[0][2] * PRIME2;
+      m_hash_idx_single[0][0] = 32'(pos_idx_surround[0][0]);
+      m_hash_idx_single[0][1] = pos_idx_surround[0][1] * PRIME1[15:0];
+      m_hash_idx_single[0][2] = pos_idx_surround[0][2] * PRIME2[15:0];
 
-      m_hash_idx_single[1][0] = pos_idx_surround[1][0];
-      m_hash_idx_single[1][1] = pos_idx_surround[1][1] * PRIME1;
-      m_hash_idx_single[1][2] = pos_idx_surround[1][2] * PRIME2;
+      m_hash_idx_single[1][0] = 32'(pos_idx_surround[1][0]);
+      m_hash_idx_single[1][1] = pos_idx_surround[1][1] * PRIME1[15:0];
+      m_hash_idx_single[1][2] = pos_idx_surround[1][2] * PRIME2[15:0];
 
-      m_hash_idx_single[2][0] = pos_idx_surround[2][0];
-      m_hash_idx_single[2][1] = pos_idx_surround[2][1] * PRIME1;
-      m_hash_idx_single[2][2] = pos_idx_surround[2][2] * PRIME2;
+      m_hash_idx_single[2][0] = 32'(pos_idx_surround[2][0]);
+      m_hash_idx_single[2][1] = pos_idx_surround[2][1] * PRIME1[15:0];
+      m_hash_idx_single[2][2] = pos_idx_surround[2][2] * PRIME2[15:0];
 
-      m_hash_idx_single[3][0] = pos_idx_surround[3][0];
-      m_hash_idx_single[3][1] = pos_idx_surround[3][1] * PRIME1;
-      m_hash_idx_single[3][2] = pos_idx_surround[3][2] * PRIME2;
+      m_hash_idx_single[3][0] = 32'(pos_idx_surround[3][0]);
+      m_hash_idx_single[3][1] = pos_idx_surround[3][1] * PRIME1[15:0];
+      m_hash_idx_single[3][2] = pos_idx_surround[3][2] * PRIME2[15:0];
 
-      m_hash_idx_single[4][0] = pos_idx_surround[4][0];
-      m_hash_idx_single[4][1] = pos_idx_surround[4][1] * PRIME1;
-      m_hash_idx_single[4][2] = pos_idx_surround[4][2] * PRIME2;
+      m_hash_idx_single[4][0] = 32'(pos_idx_surround[4][0]);
+      m_hash_idx_single[4][1] = pos_idx_surround[4][1] * PRIME1[15:0];
+      m_hash_idx_single[4][2] = pos_idx_surround[4][2] * PRIME2[15:0];
 
-      m_hash_idx_single[5][0] = pos_idx_surround[5][0];
-      m_hash_idx_single[5][1] = pos_idx_surround[5][1] * PRIME1;
-      m_hash_idx_single[5][2] = pos_idx_surround[5][2] * PRIME2;
+      m_hash_idx_single[5][0] = 32'(pos_idx_surround[5][0]);
+      m_hash_idx_single[5][1] = pos_idx_surround[5][1] * PRIME1[15:0];
+      m_hash_idx_single[5][2] = pos_idx_surround[5][2] * PRIME2[15:0];
 
-      m_hash_idx_single[6][0] = pos_idx_surround[6][0];
-      m_hash_idx_single[6][1] = pos_idx_surround[6][1] * PRIME1;
-      m_hash_idx_single[6][2] = pos_idx_surround[6][2] * PRIME2;
+      m_hash_idx_single[6][0] = 32'(pos_idx_surround[6][0]);
+      m_hash_idx_single[6][1] = pos_idx_surround[6][1] * PRIME1[15:0];
+      m_hash_idx_single[6][2] = pos_idx_surround[6][2] * PRIME2[15:0];
 
-      m_hash_idx_single[7][0] = pos_idx_surround[7][0];
-      m_hash_idx_single[7][1] = pos_idx_surround[7][1] * PRIME1;
-      m_hash_idx_single[7][2] = pos_idx_surround[7][2] * PRIME2;
+      m_hash_idx_single[7][0] = 32'(pos_idx_surround[7][0]);
+      m_hash_idx_single[7][1] = pos_idx_surround[7][1] * PRIME1[15:0];
+      m_hash_idx_single[7][2] = pos_idx_surround[7][2] * PRIME2[15:0];
     end
     HASHING_XOR: begin
       m_state = HASHING_MOD;
@@ -169,16 +192,6 @@ always_comb begin
     end
     default: begin
       m_state = IDLE;
-      m_state <= state;
-      m_x <= x_inter;
-      m_y <= y_inter;
-      m_z <= z_inter;
-      m_res <= res_inter;
-      m_pos_idx <= pos_idx;
-      m_pos_idx_surround <= pos_idx_surround;
-      m_hash_idx_single <= hash_idx_single;
-      m_hash_idx_xor <= hash_idx_xor;
-      m_hash_idx <= hash_idx;
     end
   endcase
 end
